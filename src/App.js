@@ -143,7 +143,7 @@ function App() {
     if(tmp != undefined && tmp != null){
       setMonto(tmp.saldo * 100)
       setMonto2(tmp.saldo * 100)
-      setReferencia(tmp.cardCode+"-"+tmp.billNum + Math.floor(Date.now() / 1000))
+      setReferencia(tmp.cardCode+"-"+tmp.billNum+"-"+Math.floor(Date.now() / 1000).toString())
       setIsValid(true)
     }
     console.log(tmp)
