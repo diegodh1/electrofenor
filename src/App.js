@@ -188,15 +188,15 @@ function App() {
     fetch("https://electrofrenorr.herokuapp.com/event/create", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        if (data.status != 201) {
-          return true;
+        if (data.Status == 200) {
+          e.target.submit();
         } else {
           setMessage(data.message);
           setOpen(true);
         }
       })
       .catch((error) => {
-        setMessage(error);
+        setMessage("No se pudo enviar el registro")
         setOpen(true);
         
       });
