@@ -90,7 +90,7 @@ function App() {
   const columns = [
     {
       field: "cardCode",
-      headerName: "Referencia",
+      headerName: "Cod. Usuario",
       width: sizeCols,
       editable: false,
     },
