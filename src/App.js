@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import logo from "./logo.svg";
+import logo from "./images/electro.png";
 import "./App.css";
 import { makeStyles } from "@material-ui/core/styles";
 import { Button } from "@material-ui/core";
@@ -8,6 +8,18 @@ import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import TextField from "@material-ui/core/TextField";
 import { GridEvents, useGridApiRef, DataGrid } from "@mui/x-data-grid";
+import InputAdornment from "@mui/material/InputAdornment";
+import {
+  AccountCircle,
+  AccessAlarm,
+  ThreeDRotation,
+} from "@mui/icons-material";
+import KeyIcon from "@mui/icons-material/Key";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -50,6 +62,9 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 function App() {
   const [clientId, setClientId] = useState("");
   const [open, setOpen] = useState(false);
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [openRegister, setOpenRegister] = useState(false);
+  const [logged, setLogged] = useState(false);
   const [isvalid, setIsValid] = useState(false);
   const [message, setMessage] = useState("");
   const [bills, setBills] = useState([]);
@@ -57,8 +72,15 @@ function App() {
   const [monto2, setMonto2] = useState(0);
   const [dataDetalle, setDataDetalle] = useState([]);
   const [referencia, setReferencia] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const options = { style: "currency", currency: "USD" };
   const numberFormat2 = new Intl.NumberFormat("en-US", options);
+  //registro
+  const [usernameRegistro, setUsernameRegistro] = useState("");
+  const [passwordRegistro, setPasswordRegistro] = useState("");
+  const [email, setEmail] = useState("");
+  const [numeroFactura, setNumeroFactura] = useState("");
 
   const classes = useStyles();
 
@@ -117,7 +139,7 @@ function App() {
     document.body.appendChild(script);
   }, []);
 
-  const getAllBillsByClient = (value) => {
+  const getAllBillsByClient = (value, token2) => {
     setClientId(value);
     const requestOptions = {
       method: "GET",
@@ -125,6 +147,8 @@ function App() {
     let url =
       "https://electrofrenorr.herokuapp.com/facturas/cliente/" +
       value.toString();
+
+    console.log(url);
     fetch(url, requestOptions)
       .then((response) => response.json())
       .then((data) => {
@@ -173,10 +197,10 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(JSON.stringify(dataDetalle))
-    if(dataDetalle.length == 1){
-      let tmp = dataDetalle
-      tmp[0].amount = monto
+    console.log(JSON.stringify(dataDetalle));
+    if (dataDetalle.length == 1) {
+      let tmp = dataDetalle;
+      tmp[0].amount = monto;
     }
     const requestOptions = {
       method: "POST",
@@ -196,9 +220,8 @@ function App() {
         }
       })
       .catch((error) => {
-        setMessage("No se pudo enviar el registro")
+        setMessage("No se pudo enviar el registro");
         setOpen(true);
-        
       });
   };
 
@@ -216,70 +239,196 @@ function App() {
     }
   };
 
+  const login = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ card_code: username, pass: password }),
+    };
+    fetch("https://electrofrenorr.herokuapp.com/client/login", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.Status != 200) {
+          setMessage(data.Message);
+          setOpen(true);
+        } else {
+          setLogged(true);
+          getAllBillsByClient(username, data.Payload.Token);
+        }
+      })
+      .catch((error) => {
+        setMessage("No se pudo iniciar sesión");
+        setOpen(true);
+      });
+  };
+
+  const logup = () => {
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        card_code: usernameRegistro,
+        pass: passwordRegistro,
+        mail: email,
+        num_doc: parseInt(numeroFactura),
+      }),
+    };
+    fetch("https://electrofrenorr.herokuapp.com/client/create", requestOptions)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        if (data.Status != 201) {
+          setMessage(data.Message);
+          setOpenRegister(false);
+          setOpen(true);
+        } else {
+          setMessage(data.Message);
+          setOpenRegister(false);
+          setOpenSuccess(true);
+        }
+      })
+      .catch((error) => {
+        setMessage("No se pudo iniciar sesión");
+        setOpenRegister(false);
+        setOpen(true);
+      });
+  };
+
+  const handleCloseRegister = () => {
+    setOpenRegister(false);
+  };
+
   return (
-    <div className="App">
-      <form className={classes.root} noValidate autoComplete="off">
-        <TextField
-          id="outlined-basic"
-          label="Ingresar Código de Usuario"
-          variant="outlined"
-          onChange={(value) => getAllBillsByClient(value.target.value)}
-          style={{ marginTop: "2%" }}
-        />
-      </form>
-      <div
-        style={{ height: 400, width: "90%", marginLeft: "5%", marginTop: "2%" }}
-      >
-        <DataGrid
-          getRowId={(r) => r.billNum}
-          rows={bills}
-          onSelectionModelChange={(ids) => {
-            console.log(ids);
-            if (ids.length) {
-              setDataWompi(ids);
-            }
-          }}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          checkboxSelection={true}
-          onRowEditCommit={(event) => console.log(event)}
-        />
-      </div>
-      <p style={{ textAlign: "center" }}>
-        El monto seleccionado a pagar es {numberFormat2.format(monto / 100)} COP
-      </p>
-      <p>
-        En caso de que desee hacer un pago parcial de una sola factura puede
-        editar el valor a pagar
-      </p>
-      <form className={classes.root} noValidate autoComplete="off">
-        <TextField
-          id="outlined-basic"
-          label="Valor a Pagar"
-          disabled={dataDetalle.length > 1}
-          variant="outlined"
-          onChange={(value) => setPagoParcial(value.target.value)}
-        />
-      </form>
-      <form onSubmit={handleSubmit} action="https://checkout.wompi.co/p/" method="GET">
-        <input
-          type="hidden"
-          name="public-key"
-          value="pub_test_WNGYQYXRaSqEZXNQXIqcqk2ikAg0VTfU"
-        />
-        <input type="hidden" name="currency" value="COP" />
-        <input type="hidden" name="amount-in-cents" value={monto} />
-        <input type="hidden" name="reference" value={referencia} />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={!isvalid}
-        >
-          Pagar con Wompi
-        </Button>
-      </form>
+    <div>
+      {logged ? (
+        <div className="App">
+          <div
+            style={{
+              height: 400,
+              width: "90%",
+              marginLeft: "5%",
+              marginTop: "2%",
+            }}
+          >
+            <DataGrid
+              getRowId={(r) => r.billNum}
+              rows={bills}
+              onSelectionModelChange={(ids) => {
+                console.log(ids);
+                if (ids.length) {
+                  setDataWompi(ids);
+                }
+              }}
+              columns={columns}
+              pageSize={5}
+              rowsPerPageOptions={[5]}
+              checkboxSelection={true}
+              onRowEditCommit={(event) => console.log(event)}
+            />
+          </div>
+          <p style={{ textAlign: "center" }}>
+            El monto seleccionado a pagar es {numberFormat2.format(monto / 100)}{" "}
+            COP
+          </p>
+          <p>
+            En caso de que desee hacer un pago parcial de una sola factura puede
+            editar el valor a pagar
+          </p>
+          <form className={classes.root} noValidate autoComplete="off">
+            <TextField
+              id="outlined-basic"
+              label="Valor a Pagar"
+              disabled={dataDetalle.length > 1}
+              variant="outlined"
+              onChange={(value) => setPagoParcial(value.target.value)}
+            />
+          </form>
+          <form
+            onSubmit={handleSubmit}
+            action="https://checkout.wompi.co/p/"
+            method="GET"
+          >
+            <input
+              type="hidden"
+              name="public-key"
+              value="pub_test_WNGYQYXRaSqEZXNQXIqcqk2ikAg0VTfU"
+            />
+            <input type="hidden" name="currency" value="COP" />
+            <input type="hidden" name="amount-in-cents" value={monto} />
+            <input type="hidden" name="reference" value={referencia} />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              disabled={!isvalid}
+            >
+              Pagar con Wompi
+            </Button>
+          </form>
+        </div>
+      ) : (
+        <div style={{ textAlign: "center", marginTop: "10%" }}>
+          <img src={logo} alt="Logo" />
+          <br />
+          <TextField
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <AccountCircle />
+                </InputAdornment>
+              ),
+            }}
+            style={{ width: "30%", marginTop: "2%" }}
+            label="Usuario"
+            variant="outlined"
+            onChange={(value) => setUsername(value.target.value)}
+          />
+          <br />
+          <TextField
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <KeyIcon />
+                </InputAdornment>
+              ),
+            }}
+            type="password"
+            style={{ width: "30%", marginTop: "2%" }}
+            label="Contraseña"
+            variant="outlined"
+            onChange={(value) => setPassword(value.target.value)}
+          />
+          <br />
+          <Button
+            variant="outlined"
+            style={{ marginTop: "2%", marginRight: "2%" }}
+            onClick={() => setOpenRegister(true)}
+          >
+            Registrarse
+          </Button>
+          <Button
+            variant="contained"
+            style={{ background: "#008000", marginTop: "2%", color: "white" }}
+            onClick={() => {
+              login();
+            }}
+          >
+            Ingresar Sesión
+          </Button>
+          <br />
+          <Button
+            variant="text"
+            style={{ marginTop: "2%", color: "#999999" }}
+            onClick={() => console.log(true)}
+          >
+            Recuperar mi contraseña
+          </Button>
+        </div>
+      )}
       <Snackbar
         open={open}
         autoHideDuration={6000}
@@ -293,6 +442,76 @@ function App() {
           {message}
         </Alert>
       </Snackbar>
+
+      <Snackbar
+        open={openSuccess}
+        autoHideDuration={6000}
+        onClose={() => setOpenSuccess(false)}
+      >
+        <Alert
+          onClose={() => setOpenSuccess(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+
+      <Dialog open={openRegister} onClose={handleCloseRegister}>
+        <DialogTitle>Subscribe</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Para registrarse debe de tener a la mano el código de usuario
+            asociado a su documento y un número de factura vigente
+          </DialogContentText>
+          <br />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Código de Usuario"
+            fullWidth
+            variant="standard"
+            onChange={(value) => setUsernameRegistro(value.target.value)}
+          />
+          <br />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Contraseña"
+            type="password"
+            fullWidth
+            onChange={(value) => setPasswordRegistro(value.target.value)}
+            variant="standard"
+          />
+          <br />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Email Address"
+            type="email"
+            fullWidth
+            onChange={(value) => setEmail(value.target.value)}
+            variant="standard"
+          />
+          <br />
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Escriba un número de factura que tenga asociado y esté vigente"
+            fullWidth
+            onChange={(value) => setNumeroFactura(value.target.value)}
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => handleCloseRegister()}>Cancel</Button>
+          <Button onClick={() => logup()}>Subscribe</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
