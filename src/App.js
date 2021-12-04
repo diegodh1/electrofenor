@@ -152,6 +152,7 @@ function App() {
     fetch(url, requestOptions)
       .then((response) => response.json())
       .then((data) => {
+        console.log(data)
         let temp = data.map(function (it) {
           return {
             cardCode: it.CardCode,
@@ -197,23 +198,33 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(JSON.stringify(dataDetalle));
     if (dataDetalle.length == 1) {
       let tmp = dataDetalle;
       tmp[0].amount = monto;
     }
+
+    let tempBills = dataDetalle.map(function (it) {
+      return {
+        reference: it.reference,
+        id: it.id,
+        amount: it.amount * 100,
+      };
+    });
+
+    console.log(JSON.stringify(tempBills))
     const requestOptions = {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(dataDetalle),
+      body: JSON.stringify(tempBills),
     };
+    
     fetch("https://electrofrenorr.herokuapp.com/event/create", requestOptions)
       .then((response) => response.json())
       .then((data) => {
         if (data.Status == 200) {
-          e.target.submit();
+          //e.target.submit();
         } else {
           setMessage(data.message);
           setOpen(true);
@@ -314,6 +325,7 @@ function App() {
               marginTop: "2%",
             }}
           >
+            {bills.length > 0?
             <DataGrid
               getRowId={(r) => r.billNum}
               rows={bills}
@@ -328,7 +340,7 @@ function App() {
               rowsPerPageOptions={[5]}
               checkboxSelection={true}
               onRowEditCommit={(event) => console.log(event)}
-            />
+            />:<h1 style={{textAlign:'center'}}>No hay facturas disponibles para pagar</h1>}
           </div>
           <p style={{ textAlign: "center" }}>
             El monto seleccionado a pagar es {numberFormat2.format(monto / 100)}{" "}
@@ -508,8 +520,8 @@ function App() {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => handleCloseRegister()}>Cancel</Button>
-          <Button onClick={() => logup()}>Subscribe</Button>
+          <Button onClick={() => handleCloseRegister()}>Cancelar</Button>
+          <Button onClick={() => logup()}>Suscribirse</Button>
         </DialogActions>
       </Dialog>
     </div>
