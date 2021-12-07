@@ -161,6 +161,7 @@ function App() {
             docDueDate: it.DocDueDate,
             billNum: it.DocNum,
             saldo: it.Saldo,
+            doc_entry: it.DocEntry,
           };
         });
         setBills(temp);
@@ -187,6 +188,7 @@ function App() {
         reference: ref + "-" + Math.floor(Date.now() / 1000).toString(),
         id: element.billNum,
         amount: element.saldo,
+        doc_entry: element.doc_entry,
       });
     });
     setMonto(suma * 100);
@@ -208,6 +210,7 @@ function App() {
         reference: it.reference,
         id: it.id,
         amount: it.amount * 100,
+        doc_entry: it.doc_entry,
       };
     });
 
@@ -224,7 +227,7 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         if (data.Status == 200) {
-          //e.target.submit();
+          e.target.submit();
         } else {
           setMessage(data.message);
           setOpen(true);
