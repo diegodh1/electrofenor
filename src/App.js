@@ -249,7 +249,7 @@ function App() {
     e.preventDefault();
     if (dataDetalle.length == 1) {
       let tmp = dataDetalle;
-      tmp[0].amount = monto;
+      tmp[0].amount = monto / 100;
     }
 
     let tempBills = dataDetalle.map(function (it) {
