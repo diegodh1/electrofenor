@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import logo from "./images/electro.png";
+import whatsapp from "./images/whatsapp.png";
 import "./App.css";
 import { makeStyles } from "@material-ui/core/styles";
 import { Button } from "@material-ui/core";
@@ -7,6 +8,7 @@ import Stack from "@mui/material/Stack";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import TextField from "@material-ui/core/TextField";
+import Grid from '@mui/material/Grid';
 import { GridEvents, useGridApiRef, DataGrid } from "@mui/x-data-grid";
 import InputAdornment from "@mui/material/InputAdornment";
 import {
@@ -70,6 +72,10 @@ function App() {
   const [bills, setBills] = useState([]);
   const [monto, setMonto] = useState(0);
   const [monto2, setMonto2] = useState(0);
+  const [totalCartera, setTotalCartera] = useState(0);
+  const [totalVencido, setTotalVencido] = useState(0);
+  const [cupoAsignado, setCupoAsignado] = useState(0);
+  const [cupoDisponible, setCupoDisponible] = useState(0);
   const [dataDetalle, setDataDetalle] = useState([]);
   const [referencia, setReferencia] = useState("");
   const [username, setUsername] = useState("");
@@ -85,7 +91,7 @@ function App() {
   const classes = useStyles();
 
   const { height, width } = useWindowDimensions();
-  const sizeCols = width / 7;
+  const sizeCols = width / 9.5;
 
   const columns = [
     {
@@ -109,6 +115,20 @@ function App() {
     {
       field: "docDueDate",
       headerName: "Fecha Vencimiento Doc",
+      description: "This column has a value getter and is not sortable.",
+      sortable: true,
+      width: sizeCols,
+    },
+    {
+      field: "state",
+      headerName: "Estado",
+      description: "This column has a value getter and is not sortable.",
+      sortable: true,
+      width: sizeCols,
+    },
+    {
+      field: "dias_mora",
+      headerName: "Días en mora",
       description: "This column has a value getter and is not sortable.",
       sortable: true,
       width: sizeCols,
@@ -153,7 +173,29 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         console.log(data)
+        let tempVencido = 0;
+        let tempCartera = 0;
+        setTotalCartera(0)
+        setTotalVencido(0)
+        setCupoAsignado(0)
+        setCupoDisponible(0)
+        let tempDisponible = 0;
         let temp = data.map(function (it) {
+          let today = new Date()
+          let splitedDate = it.DocDueDate.split('/')
+          let dueDate = new Date(splitedDate[2], splitedDate[1] - 1, splitedDate[0])
+          console.log(splitedDate)
+          console.log(dueDate)
+          console.log(today)
+          let diffTime = today.getTime() - dueDate.getTime();
+          let diffDays = Math.ceil(diffTime / (1000 * 3600 * 24)) - 1;
+          let estado = diffDays > 0? 'Vencida': diffDays >= -5? 'Por Vencer':'Sin Vencer'
+          setCupoAsignado(it["Cupo Asignado"])
+          tempDisponible = it["Cupo Asignado"] 
+          tempCartera = tempCartera + it.Saldo
+          if(estado == 'Vencida'){
+            tempVencido = tempVencido + it.Saldo
+          }
           return {
             cardCode: it.CardCode,
             cardName: it.CardName,
@@ -162,10 +204,15 @@ function App() {
             billNum: it.DocNum,
             saldo: it.Saldo,
             doc_entry: it.DocEntry,
+            state: estado,
+            dias_mora: diffDays
           };
         });
+        setTotalVencido(tempVencido)
+        setTotalCartera(tempCartera)
+        setCupoDisponible(tempDisponible -  tempCartera)
         setBills(temp);
-        console.log(data);
+        console.log(temp);
       })
       .catch((error) => {
         console.log(error);
@@ -343,8 +390,31 @@ function App() {
               rowsPerPageOptions={[5]}
               checkboxSelection={true}
               onRowEditCommit={(event) => console.log(event)}
-            />:<h1 style={{textAlign:'center'}}>No hay facturas disponibles para pagar</h1>}
+            />:<h1 style={{textAlign:'center'}}>Estimado Cliente, No tiene facturas pendientes por pagar.</h1>}
           </div>
+          <br/>
+          <Grid container spacing={2}>
+          <Grid item xs={1}></Grid>
+          <Grid item xs={1}><img src={whatsapp} alt="whatsapp" style={{height:'50%', width:'80%'}}/></Grid>
+          <Grid item xs={4} style={{textAlign:'justify'}}>
+            <p>Para cualquier necesidad de alguno de nuestros productos, favor comunicarse con su asesor, o dar <a href="https://web.whatsapp.com/+573212537000">Click Aquí</a> para comunicarse con uno de nuestro asesores por whatsapp</p>
+            <p>Para comunicarse con alguien de cartera <a href="https://web.whatsapp.com/+573008250414">Click Aquí</a></p>
+          </Grid>
+          <Grid item xs={6} style={{textAlign:'center'}}>
+          <p>
+            Total Cartera {numberFormat2.format(totalCartera)}{" "}COP
+          </p>
+          <p style={{color:'red'}}>
+            Total Vencido {numberFormat2.format(totalVencido)}{" "}COP
+          </p>
+          <p>
+            Cupo Asignado {numberFormat2.format(cupoAsignado)}{" "}COP
+          </p>
+          <p>
+            Cupo Disponible {numberFormat2.format(cupoDisponible)}{" "}COP
+          </p>
+          </Grid>
+          </Grid>
           <p style={{ textAlign: "center" }}>
             El monto seleccionado a pagar es {numberFormat2.format(monto / 100)}{" "}
             COP
@@ -381,7 +451,7 @@ function App() {
               color="primary"
               disabled={!isvalid}
             >
-              Pagar con Wompi
+              Pagar
             </Button>
           </form>
         </div>
