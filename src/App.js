@@ -440,7 +440,7 @@ function App() {
             <input
               type="hidden"
               name="public-key"
-              value={process.env.WOMPI_ENV}
+              value="pub_prod_tTJFivVHWPPq61LzO7AQjJO0J3SB2oSd"
             />
             <input type="hidden" name="currency" value="COP" />
             <input type="hidden" name="amount-in-cents" value={monto} />
