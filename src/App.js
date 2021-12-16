@@ -397,8 +397,8 @@ function App() {
           <Grid item xs={1}></Grid>
           <Grid item xs={1}><img src={whatsapp} alt="whatsapp" style={{height:'50%', width:'80%'}}/></Grid>
           <Grid item xs={4} style={{textAlign:'justify'}}>
-            <p>Para cualquier necesidad de alguno de nuestros productos, favor comunicarse con su asesor, o dar <a href="https://web.whatsapp.com/+573212537000">Click Aquí</a> para comunicarse con uno de nuestro asesores por whatsapp</p>
-            <p>Para comunicarse con alguien de cartera <a href="https://web.whatsapp.com/+573008250414">Click Aquí</a></p>
+            <p>Para cualquier necesidad de alguno de nuestros productos, favor comunicarse con su asesor, o dar <a href="https://api.whatsapp.com/send/?phone=57321%202537000&text&app_absent=0" target="_blank">Click Aquí</a> para comunicarse con uno de nuestros asesores por whatsapp</p>
+            <p>Para comunicarse con alguien de cartera <a href="https://api.whatsapp.com/send/?phone=57300%208250414&text&app_absent=0" target="_blank">Click Aquí</a></p>
           </Grid>
           <Grid item xs={6} style={{textAlign:'center'}}>
           <p>
@@ -440,7 +440,7 @@ function App() {
             <input
               type="hidden"
               name="public-key"
-              value="pub_test_WNGYQYXRaSqEZXNQXIqcqk2ikAg0VTfU"
+              value={process.env.WOMPI_ENV}
             />
             <input type="hidden" name="currency" value="COP" />
             <input type="hidden" name="amount-in-cents" value={monto} />
