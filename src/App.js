@@ -647,10 +647,10 @@ function App() {
               <img
                 src={whatsapp}
                 alt="whatsapp"
-                style={{ height: "50%", width: "70%" }}
+                style={{width: "70%" }}
               />
             </Grid>
-            <Grid item xs={5} style={{ textAlign: "justify" }}>
+            <Grid item xs={4} style={{ textAlign: "justify" }}>
               <p>
                 Para cualquier necesidad de alguno de nuestros productos, favor
                 comunicarse con su asesor, o dar{" "}
@@ -673,7 +673,7 @@ function App() {
               </p>
             </Grid>
             <Grid item xs={1}/>
-            <Grid item xs={4} style={{ textAlign: "left" }}>
+            <Grid item xs={5} style={{ textAlign: "left"}}>
               <p>Total Cartera {numberFormat2.format(totalCartera)} COP</p>
               <p style={{ color: "red" }}>
                 Total Vencido {numberFormat2.format(totalVencido)} COP
