@@ -28,6 +28,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 
+
 const useStyles = makeStyles((theme) => ({
   root: {
     "& > *": {
@@ -114,7 +115,9 @@ function App() {
   const [isvalid, setIsValid] = useState(false);
   const [message, setMessage] = useState("");
   const [bills, setBills] = useState([]);
+  const [filteredBills, setFilteredBills] = useState([]);
   const [offers, setOffers] = useState([]);
+  const [filteredOffers, setFilteredOffers] = useState([]);
   const [monto, setMonto] = useState(0);
   const [monto2, setMonto2] = useState(0);
   const [totalCartera, setTotalCartera] = useState(0);
@@ -150,19 +153,19 @@ function App() {
     {
       field: "cardCode",
       headerName: "Cod. Usuario",
-      width: sizeCols,
+      minWidth:sizeCols,
       editable: false,
     },
     {
       field: "cardName",
       headerName: "Nombre",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
     {
       field: "docDate",
       headerName: "Fecha Documento",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
     {
@@ -170,14 +173,14 @@ function App() {
       headerName: "Fecha Vencimiento Doc",
       description: "This column has a value getter and is not sortable.",
       sortable: true,
-      width: sizeCols,
+      minWidth: sizeCols,
     },
     {
       field: "state",
       headerName: "Estado",
       description: "This column has a value getter and is not sortable.",
       sortable: true,
-      width: sizeCols,
+      minWidth: sizeCols,
     },
     {
       field: "dias_mora",
@@ -185,19 +188,19 @@ function App() {
       headerName: "Días en mora",
       description: "This column has a value getter and is not sortable.",
       sortable: true,
-      width: sizeCols,
+      minWidth: sizeCols,
     },
     {
       field: "billNum",
       headerName: "Num. Factura",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
 
     {
       field: "saldoAux",
       headerName: "Saldo",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
   ];
@@ -206,19 +209,19 @@ function App() {
     {
       field: "cardCode",
       headerName: "Cod. Usuario",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
     {
       field: "cardName",
       headerName: "Nombre",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
     {
       field: "docDate",
       headerName: "Fecha Documento",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
     {
@@ -226,18 +229,18 @@ function App() {
       headerName: "Fecha Vencimiento Doc",
       description: "This column has a value getter and is not sortable.",
       sortable: true,
-      width: sizeCols,
+      minWidth: sizeCols,
     },
     {
       field: "billNum",
       headerName: "Num. Factura",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
     {
       field: "saldoAux",
       headerName: "Saldo",
-      width: sizeCols,
+      minWidth: sizeCols,
       editable: false,
     },
   ];
@@ -284,11 +287,9 @@ function App() {
       "https://electrofrenorr.herokuapp.com/facturas/cliente/" +
       value.toString();
 
-    console.log(url);
     fetch(url, requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         let tempVencido = 0;
         let tempCartera = 0;
         setTotalCartera(0);
@@ -304,9 +305,6 @@ function App() {
             splitedDate[1] - 1,
             splitedDate[0]
           );
-          console.log(splitedDate);
-          console.log(dueDate);
-          console.log(today);
           let diffTime = today.getTime() - dueDate.getTime();
           let diffDays = Math.ceil(diffTime / (1000 * 3600 * 24)) - 1;
           let estado =
@@ -338,7 +336,6 @@ function App() {
         setTotalCartera(tempCartera);
         setCupoDisponible(tempDisponible - tempCartera);
         setBills(temp);
-        console.log(temp);
       })
       .catch((error) => {
         console.log(error);
@@ -352,12 +349,9 @@ function App() {
     let url =
         "https://electrofrenorr.herokuapp.com/cliente/ofertas/" +
         value.toString();
-
-    console.log(url);
     fetch(url, requestOptions)
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
           let temp = data.map(function (it) {
             return {
               cardCode: it.CardCode,
@@ -371,27 +365,36 @@ function App() {
             };
           });
           setOffers(temp);
-          console.log(temp);
         })
         .catch((error) => {
           console.log(error);
         });
   };
 
-  const setDataWompi = (ids) => {
+  const setDataWompi= (ids, type) => {
+    let filteredBillsTemp = filteredBills
+    let filteredOffersTemp = filteredOffers
+
+    switch (type) {
+      case 'bills':
+        filteredBillsTemp = bills.filter(function (element) {
+          return ids.includes(element.billNum);
+        });
+        break;
+      case 'offers':
+        filteredOffersTemp = offers.filter(function (element) {
+          return ids.includes(element.billNum);
+        });
+        break;
+    }
+
+
     setMonto(0);
     setMonto2(0);
     let data = [];
     let suma = 0;
     let ref = "";
-    let filteredBills = bills.filter(function (element) {
-      return ids.includes(element.billNum);
-    });
-    let filteredOffers = offers.filter(function (element) {
-      return ids.includes(element.billNum);
-    });
-
-    let filtered = filteredBills.concat(filteredOffers)
+    let filtered = filteredBillsTemp.concat(filteredOffersTemp)
 
     filtered.forEach((element) => {
       suma = suma + element.saldo;
@@ -408,6 +411,8 @@ function App() {
     setReferencia(ref + "-" + Math.floor(Date.now() / 1000).toString());
     setDataDetalle(data);
     setIsValid(true);
+    setFilteredBills(filteredBillsTemp)
+    setFilteredOffers(filteredOffersTemp)
   };
 
   const handleSubmit = (e) => {
@@ -509,7 +514,6 @@ function App() {
     fetch("https://electrofrenorr.herokuapp.com/client/create", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.Status !== 201) {
           setMessage(data.Message);
           setOpenRegister(false);
@@ -543,7 +547,6 @@ function App() {
     fetch("https://electrofrenorr.herokuapp.com/client/change/pass", requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.Status !== 200) {
           setMessage(data.Message);
           setOpenRegister(false);
@@ -569,89 +572,73 @@ function App() {
     <div>
       {logged ? (
         <div className="App">
-          <Box sx={{ width: '100%' }}>
-            <Box sx={{width: '90%', marginLeft:'2%', borderBottom: 1, borderColor: 'divider' }}>
-              <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                <Tab label="FACTURAS" {...a11yProps(0)} />
-                <Tab label="OFERTAS" {...a11yProps(1)} />
-              </Tabs>
-            </Box>
-            <TabPanel value={value} index={0}>
-              <div
-                  style={{
-                    height: 400,
-                    width: "90%",
-                    marginLeft: "5%",
-                    marginTop: "2%",
+          <h2>Facturas</h2>
+          <div
+              style={{
+                height: 300,
+                width: "90%",
+                marginLeft: "5%",
+                marginTop: "2%",
+              }}
+          >
+          {bills.length > 0 ? (
+              <DataGrid
+                  getRowId={(r) => r.billNum}
+                  rows={bills}
+                  onSelectionModelChange={(ids) => {
+                    if (ids.length) {
+                      setDataWompi(ids,'bills');
+                    }
+                    else{
+                      setDataWompi([],'bills');
+                      setIsValid(false)
+                    }
                   }}
-              >
-                {bills.length > 0 ? (
-                    <DataGrid
-                        getRowId={(r) => r.billNum}
-                        rows={bills}
-                        onSelectionModelChange={(ids) => {
-                          console.log(ids);
-                          if (ids.length) {
-                            setDataWompi(ids);
-                          }
-                          else{
-                            setMonto(0);
-                            setMonto2(0);
-                            setIsValid(false)
-                          }
-                        }}
-                        columns={columns}
-                        pageSize={5}
-                        rowsPerPageOptions={[5]}
-                        checkboxSelection={true}
-                        onRowEditCommit={(event) => console.log(event)}
-                    />
-                ) : (
-                    <p style={{ textAlign: "center" }}>
-                      Estimado Cliente, No tiene facturas pendientes por pagar.
-                    </p>
-                )}
-              </div>
-            </TabPanel>
-            <TabPanel value={value} index={1}>
-              <div
-                  style={{
-                    height: 400,
-                    width: "80%",
-                    marginLeft: "10%",
-                    marginTop: "2%",
+                  columns={columns}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  checkboxSelection={true}
+              />
+          ) : (
+              <p style={{ textAlign: "center" }}>
+                Estimado Cliente, No tiene facturas pendientes por pagar.
+              </p>
+          )}
+          </div>
+          <h2 style={{marginTop:'2%'}}>Ofertas</h2>
+          <div
+              style={{
+                height: 300,
+                width: "90%",
+                marginLeft: "5%",
+                marginTop: "2%",
+              }}
+          >
+          {offers.length > 0 ? (
+              <DataGrid
+                  style={{marginBottom:'5%'}}
+                  getRowId={(r) => r.billNum}
+                  rows={offers}
+                  onSelectionModelChange={(ids) => {
+                    if (ids.length) {
+                      setDataWompi(ids,'offers');
+                    }
+                    else{
+                      setDataWompi([],'offers');
+                      setIsValid(false)
+                    }
                   }}
-              >
-              {offers.length > 0 ? (
-                  <DataGrid
-                      getRowId={(r) => r.billNum}
-                      rows={offers}
-                      onSelectionModelChange={(ids) => {
-                        console.log(ids);
-                        if (ids.length) {
-                          setDataWompi(ids);
-                        }
-                        else{
-                          setMonto(0);
-                          setMonto2(0);
-                          setIsValid(false)
-                        }
-                      }}
-                      columns={columnsOffer}
-                      pageSize={5}
-                      rowsPerPageOptions={[5]}
-                      checkboxSelection={true}
-                      onRowEditCommit={(event) => console.log(event)}
-                  />
-              ) : (
-                  <p style={{ textAlign: "center" }}>
-                    Estimado Cliente, No tiene ofertas disponibles en el momento.
-                  </p>
-              )}
-              </div>
-            </TabPanel>
-          </Box>
-          <br/>
+                  columns={columnsOffer}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  checkboxSelection={true}
+              />
+          ) : (
+              <p style={{ textAlign: "center" }}>
+                Estimado Cliente, No tiene ofertas disponibles en el momento.
+              </p>
+          )}
+          </div>
           <br/>
 
           <Grid container spacing={2}>
@@ -660,7 +647,7 @@ function App() {
               <img
                 src={whatsapp}
                 alt="whatsapp"
-                style={{ height: "50%", width: "80%" }}
+                style={{ height: "50%", width: "70%" }}
               />
             </Grid>
             <Grid item xs={5} style={{ textAlign: "justify" }}>
@@ -869,7 +856,7 @@ function App() {
             <RadioGroup
                 aria-labelledby="demo-radio-buttons-group-label"
                 defaultValue="factura"
-                onChange={(value) => console.log(value.target.value)}
+                onChange={(value) => setTipoDocumento(value.target.value)}
                 name="radio-buttons-group">
               <FormControlLabel value="factura" control={<Radio />} label="Factura"/>
               <FormControlLabel value="cotizacion" control={<Radio />} label="Cotización"/>
