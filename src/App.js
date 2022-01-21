@@ -605,7 +605,7 @@ function App() {
               </p>
           )}
           </div>
-          <h2 style={{marginTop:'2%'}}>Ofertas</h2>
+          <h2 style={{marginTop:'2%'}}>Cotizaciones</h2>
           <div
               style={{
                 height: 300,
