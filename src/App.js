@@ -508,7 +508,7 @@ function App() {
         pass: passwordRegistro,
         mail: email,
         num_doc: parseInt(numeroFactura),
-        is_offer: tipoDocumento === "factura"
+        is_offer: tipoDocumento != "factura"
       }),
     };
     fetch("https://electrofrenorr.herokuapp.com/client/create", requestOptions)
