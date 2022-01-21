@@ -779,7 +779,7 @@ function App() {
             style={{ marginTop: "2%", color: "#999999" }}
             onClick={() => setRecoverPassword(true)}
           >
-            Recuperar mi contraseña
+            Cambiar contraseña
           </Button>
         </div>
       )}
@@ -883,7 +883,7 @@ function App() {
         <DialogTitle>Recuperar Contraseña</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Para recuperar contraseña debe de contar con la contraseña secrecta de electrofenor.
+            Para cambiar contraseña debe de contar con la contraseña secreta de electrofrenor (Solicite por favor este cambio a Electrofrenor en caso de olvidarse de la contraseña).
           </DialogContentText>
           <br />
           <TextField
