@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import logo from "./images/electro.png";
 import whatsapp from "./images/whatsapp.png";
 import "./App.css";
-import { makeStyles } from "@material-ui/core/styles";
-import { Button } from "@material-ui/core";
+import {makeStyles} from "@material-ui/core/styles";
+import {Button} from "@material-ui/core";
 import Snackbar from "@mui/material/Snackbar";
 import MuiAlert from "@mui/material/Alert";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@mui/material/Grid";
-import { DataGrid } from "@mui/x-data-grid";
+import {DataGrid} from "@mui/x-data-grid";
 import InputAdornment from "@mui/material/InputAdornment";
-import {
-  AccountCircle,
-} from "@mui/icons-material";
+import {AccountCircle,} from "@mui/icons-material";
 import KeyIcon from "@mui/icons-material/Key";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -24,6 +22,11 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -122,6 +125,7 @@ function App() {
   const [referencia, setReferencia] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [tipoDocumento, setTipoDocumento] = useState("factura");
   const options = { style: "currency", currency: "USD" };
   const numberFormat2 = new Intl.NumberFormat("en-US", options);
   //registro
@@ -243,7 +247,6 @@ function App() {
 
     script.src = "https://checkout.wompi.co/widget.js";
     script.async = true;
-
     document.body.appendChild(script);
     let userTmp = localStorage.getItem('username')
     let passTmp = localStorage.getItem('password')
@@ -410,8 +413,7 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (dataDetalle.length === 1) {
-      let tmp = dataDetalle;
-      tmp[0].amount = monto / 100;
+      dataDetalle[0].amount = monto / 100;
     }
 
     let tempBills = dataDetalle.map(function (it) {
@@ -423,7 +425,6 @@ function App() {
       };
     });
 
-    console.log(JSON.stringify(tempBills));
     const requestOptions = {
       method: "POST",
       headers: {
@@ -502,6 +503,7 @@ function App() {
         pass: passwordRegistro,
         mail: email,
         num_doc: parseInt(numeroFactura),
+        is_offer: tipoDocumento === "factura"
       }),
     };
     fetch("https://electrofrenorr.herokuapp.com/client/create", requestOptions)
@@ -829,7 +831,7 @@ function App() {
             Para registrarse debe de tener a la mano el código de usuario
             asociado a su documento y un número de factura vigente
           </DialogContentText>
-          <br />
+          <br/>
           <TextField
             autoFocus
             margin="dense"
@@ -839,7 +841,7 @@ function App() {
             variant="standard"
             onChange={(value) => setUsernameRegistro(value.target.value)}
           />
-          <br />
+          <br/>
           <TextField
             autoFocus
             margin="dense"
@@ -850,7 +852,7 @@ function App() {
             onChange={(value) => setPasswordRegistro(value.target.value)}
             variant="standard"
           />
-          <br />
+          <br/>
           <TextField
             autoFocus
             margin="dense"
@@ -861,12 +863,24 @@ function App() {
             onChange={(value) => setEmail(value.target.value)}
             variant="standard"
           />
-          <br />
+          <br/><br/>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">Tipo de Documento</FormLabel>
+            <RadioGroup
+                aria-labelledby="demo-radio-buttons-group-label"
+                defaultValue="factura"
+                onChange={(value) => console.log(value.target.value)}
+                name="radio-buttons-group">
+              <FormControlLabel value="factura" control={<Radio />} label="Factura"/>
+              <FormControlLabel value="cotizacion" control={<Radio />} label="Cotización"/>
+            </RadioGroup>
+          </FormControl>
+          <br/>
           <TextField
             autoFocus
             margin="dense"
             id="name"
-            label="Escriba un número de factura que tenga asociado y esté vigente"
+            label="Escriba un número de documento que tenga asociado y esté vigente"
             fullWidth
             onChange={(value) => setNumeroFactura(value.target.value)}
             variant="standard"
