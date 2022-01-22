@@ -18,8 +18,6 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import PropTypes from 'prop-types';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Radio from '@mui/material/Radio';
@@ -572,7 +570,7 @@ function App() {
     <div>
       {logged ? (
         <div className="App">
-          <Button style={{position:'fixed', top:0, right:'5%'}}  endIcon={<LogoutIcon />} onClick={()=> {
+          <Button style={{position:'fixed', top:0, right:'1%'}}  endIcon={<LogoutIcon />} onClick={()=> {
             setLogged(false);
             localStorage.clear();
           }}>
