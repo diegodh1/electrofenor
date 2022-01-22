@@ -27,7 +27,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
-
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -326,7 +326,7 @@ function App() {
             docDueDate: it.DocDueDate,
             billNum: it.DocNum,
             saldo: it.Saldo,
-            saldoAux: "$" + new Intl.NumberFormat("en-IN").format(it.Saldo),
+            saldoAux: "$" + new Intl.NumberFormat("COP").format(it.Saldo),
             doc_entry: it.DocEntry,
             state: estado,
             dias_mora: diffDays,
@@ -572,6 +572,12 @@ function App() {
     <div>
       {logged ? (
         <div className="App">
+          <Button style={{position:'fixed', top:0, right:'5%'}}  endIcon={<LogoutIcon />} onClick={()=> {
+            setLogged(false);
+            localStorage.clear();
+          }}>
+            Cerrar Sesión
+          </Button>
           <h2>Facturas</h2>
           <div
               style={{
