@@ -358,7 +358,7 @@ function App() {
               docDueDate: it.DocDueDate,
               billNum: it.DocNum,
               saldo: it.Saldo,
-              saldoAux: "$" + new Intl.NumberFormat("en-IN").format(it.Saldo),
+              saldoAux: "$" + new Intl.NumberFormat("COP").format(it.Saldo),
               doc_entry: it.DocEntry
             };
           });
