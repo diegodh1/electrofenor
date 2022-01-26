@@ -416,11 +416,11 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (dataDetalle.length === 1) {
-      dataDetalle[0].amount = monto / 100;
+      dataDetalle[0].amount = Math.round(monto / 100);
     }
 
     let tempBills = dataDetalle.map(function (it) {
-      let amount2 = Math.round(it.amount * 100)
+      let amount2 = it.amount * 100
       return {
         reference: it.reference,
         id: it.id,
@@ -717,7 +717,7 @@ function App() {
               value="pub_prod_tTJFivVHWPPq61LzO7AQjJO0J3SB2oSd"
             />
             <input type="hidden" name="currency" value="COP" />
-            <input type="hidden" name="amount-in-cents" value={monto} />
+            <input type="hidden" name="amount-in-cents" value={Math.round(monto)} />
             <input type="hidden" name="reference" value={referencia} />
             <Button
               type="submit"
