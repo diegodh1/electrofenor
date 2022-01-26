@@ -490,6 +490,7 @@ function App() {
           localStorage.setItem('username', username)
           localStorage.setItem('password', password)
           getAllBillsByClient(username, data.Payload.Token);
+          getAllOfferssByClient(username, data.Payload.Token);
         }
       })
       .catch((error) => {
