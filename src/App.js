@@ -267,7 +267,10 @@ function App() {
           } else {
             setLogged(true);
             getAllBillsByClient(userTmp, data.Payload.Token);
-            getAllOfferssByClient(userTmp, data.Payload.Token);
+            setTimeout(function(){
+              getAllOfferssByClient(userTmp, data.Payload.Token);
+            }, 300)
+
           }
         })
         .catch((error) => {
@@ -416,15 +419,14 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (dataDetalle.length === 1) {
-      dataDetalle[0].amount = Math.round(monto / 100);
+      dataDetalle[0].amount = Math.round(monto);
     }
 
     let tempBills = dataDetalle.map(function (it) {
-      let amount2 = it.amount * 100
       return {
         reference: it.reference,
         id: it.id,
-        amount: amount2,
+        amount: Math.round(it.amount * 100),
         doc_entry: it.doc_entry,
       };
     });
