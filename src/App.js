@@ -418,9 +418,6 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (dataDetalle.length === 1) {
-      dataDetalle[0].amount = Math.round(monto);
-    }
 
     let tempBills = dataDetalle.map(function (it) {
       return {
@@ -510,7 +507,7 @@ function App() {
         pass: passwordRegistro,
         mail: email,
         num_doc: parseInt(numeroFactura),
-        is_offer: tipoDocumento != "factura"
+        is_offer: tipoDocumento !== "factura"
       }),
     };
     fetch("https://electrofrenorr.herokuapp.com/client/create", requestOptions)
