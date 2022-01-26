@@ -418,8 +418,9 @@ function App() {
     if (dataDetalle.length === 1) {
       dataDetalle[0].amount = monto / 100;
     }
-    let amount2 = Math.round(it.amount * 100)
+
     let tempBills = dataDetalle.map(function (it) {
+      let amount2 = Math.round(it.amount * 100)
       return {
         reference: it.reference,
         id: it.id,
