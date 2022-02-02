@@ -418,15 +418,24 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    let tempBills = dataDetalle.map(function (it) {
-      return {
-        reference: it.reference,
-        id: it.id,
-        amount: Math.round(it.amount * 100),
-        doc_entry: it.doc_entry,
-      };
-    });
+    let tempBills = []
+    if(dataDetalle.length == 1){
+      tempBills.push({
+        reference: dataDetalle[0].reference,
+        id: dataDetalle[0].id,
+        amount: Math.round(monto),
+        doc_entry: dataDetalle[0].doc_entry,
+      })  
+    }else{
+      tempBills = dataDetalle.map(function (it) {
+        return {
+          reference: it.reference,
+          id: it.id,
+          amount: Math.round(it.amount * 100),
+          doc_entry: it.doc_entry,
+        };
+      });
+    }
 
     const requestOptions = {
       method: "POST",
